@@ -1,55 +1,88 @@
-// script.js
 const sendButton = document.getElementById("send");
 const messageList = document.getElementById("messages");
-const socket = io('http://127.0.0.1:5500'); // Initialize Socket.IO
-const username = prompt("Enter your username:"); // Prompt user for username
-
+const username = prompt("Enter your username:") || "Undefined"; // Prompt user for username
+const { createClient } = supabase;
+const supabase2 = createClient('https://dvlfunioxoupyyaxipnj.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bGZ1bmlveG91cHl5YXhpcG5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjczODE2MzIsImV4cCI6MjA0Mjk1NzYzMn0.Tyqzm6kKzVZqnBDYN69Pb3fcwkSRcA4zUb6QSO0I6gY'); // Replace with your actual anon key
+let messages = []
 class Message {
-    constructor(message, username) {
+    constructor(message, username,id) {
         this.message = message;
         this.username = username;
+        this.id = id;
         this.timestamp = new Date();
     }
+
     append() {
         let messageElement = document.createElement("li");
-        messageElement.innerHTML = `[${this.timestamp.toLocaleTimeString()}] <strong>${this.username}:</strong> ${this.message}`; // Include username
+        messageElement.innerHTML = `[${this.timestamp.toLocaleTimeString()}] <strong>${this.username}:</strong> ${this.message}`;
         messageList.appendChild(messageElement);
     }
 }
 
+// Function to fetch messages from Supabase
+async function fetchMessages() {
+    const { data, error } = await supabase2
+        .from('main') // Replace with your table name
+        .select('MSG') // Replace with your column names
+
+    if (error) {
+        console.error('Error fetching messages:', error);
+        return;
+    }
+    data.forEach(msg => {
+        let data = msg.MSG
+        console.log(data.id)
+        for (let i = 0; i < messages.length; i++) {
+            if (messages[i].id === data.id) return;
+        }
+        let msgOBJ = new Message(data.MSG, data.User,data.id);
+        messages.push(msgOBJ);
+        msgOBJ.append();
+    });
+}
+
 // Handle message submission
-document.getElementById('messageForm').addEventListener('submit', function(event) {
+document.getElementById('messageForm').addEventListener('submit', async function(event) {
     event.preventDefault();
     let userInput = document.getElementById("messageInput").value;
     if (!userInput) return; // Ignore empty messages
 
-    let message = new Message(userInput, username);
-    message.append();
-    socket.emit('chat message', { message: userInput, username }); // Emit message and username
+    // Create a message object
+    let message = {
+        id: Math.floor(Math.random() * 10000),
+        MSG: userInput,
+        User: username
+    };
+
+    // Convert message to JSON string
+    const jsonMessage = (message);
+
+    // Insert message into Supabase
+    const { error } = await supabase2
+        .from('main') // Replace with your table name
+        .insert({ MSG: jsonMessage });
+
+    if (error) {
+        console.error('Error sending message:', error);
+    }
+
     document.getElementById("messageInput").value = ''; // Clear input field
 });
 
-// Listen for incoming messages
-socket.on('chat message', (data) => {
-    let message = new Message(data.message, data.username);
-    message.append();
-});
+
 
 // Sidebar toggle functionality
-document.addEventListener("DOMContentLoaded", () => {
-    const hamburger = document.getElementById("hamburger");
-    const sidebar = document.getElementById("sidebar");
+const hamburger = document.getElementById("hamburger");
+const sidebar = document.getElementById("sidebar");
 
-    hamburger.addEventListener("click", () => {
-        sidebar.classList.toggle("open");
-    });
+hamburger.addEventListener("click", () => {
+    sidebar.classList.toggle("open");
 });
 
-// Initialize any periodic tasks if needed
+// Initialize periodic fetch of messages
 function loop() {
-    setInterval(() => {
-        // Periodic tasks can be added here
-    }, 1000);
+    fetchMessages(); // Initial fetch
+    setInterval(fetchMessages, 5000); // Fetch every 5 seconds
 }
 
 function init() {
