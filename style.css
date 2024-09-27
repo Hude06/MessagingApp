@@ -116,6 +116,7 @@ button:hover {
 }
 
 #messages {
+    width: 100vw;
     height: 300px;
     overflow-y: auto;
     overflow-x: auto;
