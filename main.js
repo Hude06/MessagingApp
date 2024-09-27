@@ -1,6 +1,11 @@
 const sendButton = document.getElementById("send");
 const messageList = document.getElementById("messages");
-const username = prompt("Enter your username:") || "Undefined"; // Prompt user for username
+const username = null
+if (localStorage.getItem("username") === null) {
+    localStorage.setItem("username", prompt("Enter your username:") || "Undefined");
+} else {
+    username = localStorage.getItem("username");
+}
 const { createClient } = supabase;
 const supabase2 = createClient('https://dvlfunioxoupyyaxipnj.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bGZ1bmlveG91cHl5YXhpcG5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjczODE2MzIsImV4cCI6MjA0Mjk1NzYzMn0.Tyqzm6kKzVZqnBDYN69Pb3fcwkSRcA4zUb6QSO0I6gY'); // Replace with your actual anon key
 let messages = []
