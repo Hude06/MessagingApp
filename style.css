@@ -118,6 +118,7 @@ button:hover {
 #messages {
     height: 300px;
     overflow-y: auto;
+    overflow-x: auto;
     border: 1px solid #ced4da;
     border-radius: 5px;
     padding: 10px;
