@@ -1,6 +1,7 @@
 const sendButton = document.getElementById("send");
 const messageList = document.getElementById("messages");
-const username = null
+let username = null
+console.log(localStorage.getItem("username"))
 if (localStorage.getItem("username") === null) {
     localStorage.setItem("username", prompt("Enter your username:") || "Undefined");
 } else {
