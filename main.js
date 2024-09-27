@@ -25,7 +25,6 @@ class Message {
     }
 }
 
-// Function to fetch messages from Supabase
 async function fetchMessages() {
     const { data, error } = await supabase2
         .from('main') // Replace with your table name
@@ -88,7 +87,7 @@ hamburger.addEventListener("click", () => {
 // Initialize periodic fetch of messages
 function loop() {
     fetchMessages(); // Initial fetch
-    setInterval(fetchMessages, 5000); // Fetch every 5 seconds
+    setInterval(fetchMessages, 10000); // Fetch every 5 seconds
 }
 
 function init() {
