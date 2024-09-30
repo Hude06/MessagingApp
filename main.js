@@ -81,7 +81,9 @@ const hamburger = document.getElementById("hamburger");
 const sidebar = document.getElementById("sidebar");
 
 hamburger.addEventListener("click", () => {
+    console.log("clicked")
     sidebar.classList.toggle("open");
+    return
 });
 
 // Initialize periodic fetch of messages

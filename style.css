@@ -41,7 +41,9 @@ nav {
     min-height: 100vh;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
-
+#sidebar {
+    display: none;
+}   
 #sidebar ul {
     list-style: none;
     padding: 0;
