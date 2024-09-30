@@ -1,27 +1,45 @@
 const sendButton = document.getElementById("send");
-const messageList = document.getElementById("messages");
+const messageList = document.getElementById("messages") || null;
 let username = null
-console.log(localStorage.getItem("username"))
-if (localStorage.getItem("username") === null) {
-    localStorage.setItem("username", prompt("Enter your username:") || "Undefined");
+let usernameProfile = document.getElementById("username") || null
+let reset = document.getElementById("reset") || null
+if (localStorage.getItem("username") !== null) {
+    username = localStorage.getItem("username")
+    if (usernameProfile !== null) {
+        usernameProfile.innerHTML = username
+    }
 } else {
-    username = localStorage.getItem("username");
+    console.log("no username")
+    username = prompt("Enter your username")
+    localStorage.setItem("username", username)
+    usernameProfile.innerHTML = username
+    console.log(username)
+}
+if (reset) {
+    reset.addEventListener("click", () => {
+        localStorage.clear()
+        setTimeout(() => {
+            location.reload()
+        },200)
+    })
 }
 const { createClient } = supabase;
 const supabase2 = createClient('https://dvlfunioxoupyyaxipnj.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bGZ1bmlveG91cHl5YXhpcG5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjczODE2MzIsImV4cCI6MjA0Mjk1NzYzMn0.Tyqzm6kKzVZqnBDYN69Pb3fcwkSRcA4zUb6QSO0I6gY'); // Replace with your actual anon key
 let messages = []
 class Message {
-    constructor(message, username,id) {
+    constructor(message, username,id,time) {
         this.message = message;
         this.username = username;
         this.id = id;
-        this.timestamp = new Date();
+        this.timestamp = time;
     }
 
     append() {
         let messageElement = document.createElement("li");
-        messageElement.innerHTML = `[${this.timestamp.toLocaleTimeString()}] <strong>${this.username}:</strong> ${this.message}`;
-        messageList.appendChild(messageElement);
+        messageElement.innerHTML = `[${this.timestamp}] <strong>${this.username}:</strong> ${this.message}`;
+        if (messageList) {
+            messageList.appendChild(messageElement);
+        }
     }
 }
 
@@ -40,41 +58,43 @@ async function fetchMessages() {
         for (let i = 0; i < messages.length; i++) {
             if (messages[i].id === data.id) return;
         }
-        let msgOBJ = new Message(data.MSG, data.User,data.id);
+        let msgOBJ = new Message(data.MSG, data.User,data.id, data.time);
         messages.push(msgOBJ);
         msgOBJ.append();
     });
 }
 
 // Handle message submission
-document.getElementById('messageForm').addEventListener('submit', async function(event) {
-    event.preventDefault();
-    let userInput = document.getElementById("messageInput").value;
-    if (!userInput) return; // Ignore empty messages
-
-    // Create a message object
-    let message = {
-        id: Math.floor(Math.random() * 10000),
-        MSG: userInput,
-        User: username
-    };
-
-    // Convert message to JSON string
-    const jsonMessage = (message);
-
-    // Insert message into Supabase
-    const { error } = await supabase2
-        .from('main') // Replace with your table name
-        .insert({ MSG: jsonMessage });
-
-    if (error) {
-        console.error('Error sending message:', error);
-    }
-
-    document.getElementById("messageInput").value = ''; // Clear input field
-});
-
-
+let messageForm = document.getElementById("messageForm") || null
+if (messageForm) {
+    messageForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        let userInput = document.getElementById("messageInput").value;
+        if (!userInput) return; // Ignore empty messages
+    
+        // Create a message object
+        let message = {
+            id: Math.floor(Math.random() * 10000),
+            MSG: userInput,
+            User: username,
+            time: new Date().toLocaleTimeString()
+        };
+    
+        // Convert message to JSON string
+        const jsonMessage = (message);
+    
+        // Insert message into Supabase
+        const { error } = await supabase2
+            .from('main') // Replace with your table name
+            .insert({ MSG: jsonMessage });
+    
+        if (error) {
+            console.error('Error sending message:', error);
+        }
+    
+        document.getElementById("messageInput").value = ''; // Clear input field
+    });
+}
 
 // Sidebar toggle functionality
 const hamburger = document.getElementById("hamburger");

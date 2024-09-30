@@ -11,7 +11,7 @@
 </head>
 <body>
     <header>
-        <h1>Pulse</h1>
+        <h1>Profile</h1>
         <p>Your secure messaging app</p>
     </header>
 
@@ -19,23 +19,26 @@
         <button id = "hamburger">#</button> 
         <nav id="sidebar">
             <ul id = "menubar">
-                <li><a href="./profile.html">Profile</a></li>
-                <li><a href="./index.html" class="active">Chat</a></li>
+                <li><a href="./profile.html"class="active">Profile</a></li>
+                <li><a href="./index.html">Chat</a></li>
                 <li><a href="#">Contacts</a></li>
                 <li><a href="#">Settings</a></li>
             </ul>
         </nav>
 
         <main>
-            <section id="chat">
-                <div id="messages">
-                    <!-- Messages will be displayed here -->
-                </div>
+            <div class = "topbar">
+                <h1 id = "username"></h1>
+            </div>
+            <button id = "reset">Reset Username</button>
+
+            <!-- <section id="chat">
+
                 <form id="messageForm">
                     <input type="text" id="messageInput" placeholder="Type your message..." required>
                     <button id = "send">Send</button>
                 </form>
-            </section>
+            </section> -->
         </main>
     </div>
 

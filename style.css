@@ -203,3 +203,10 @@ footer {
         display: block; /* Show hamburger menu */
     }
 }
+
+.topbar {
+    display: flex;
+}
+.topbar h1 {
+    padding: 1rem;
+}
