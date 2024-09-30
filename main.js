@@ -3,7 +3,7 @@ const messageList = document.getElementById("messages") || null;
 let username = null
 let usernameProfile = document.getElementById("username") || null
 let reset = document.getElementById("reset") || null
-if (localStorage.getItem("username") !== null) {
+if (localStorage.getItem("username2") !== null) {
     username = localStorage.getItem("username")
     if (usernameProfile !== null) {
         usernameProfile.innerHTML = username
@@ -11,7 +11,7 @@ if (localStorage.getItem("username") !== null) {
 } else {
     console.log("no username")
     username = prompt("Enter your username")
-    localStorage.setItem("username", username)
+    localStorage.setItem("username2", username)
     usernameProfile.innerHTML = username
     console.log(username)
 }
