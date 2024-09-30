@@ -3,6 +3,7 @@ const messageList = document.getElementById("messages") || null;
 let username = null
 let usernameProfile = document.getElementById("username") || null
 let reset = document.getElementById("reset") || null
+location.reload(true)
 if (localStorage.getItem("username") !== null) {
     username = localStorage.getItem("username")
     if (usernameProfile !== null) {
