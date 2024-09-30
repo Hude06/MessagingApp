@@ -3,16 +3,69 @@ const messageList = document.getElementById("messages") || null;
 let username = null
 let usernameProfile = document.getElementById("username") || null
 let reset = document.getElementById("reset") || null
+function customPrompt(message) {
+    return new Promise((resolve, reject) => {
+        // Create prompt container
+        const promptContainer = document.createElement('div');
+        promptContainer.style.position = 'fixed';
+        promptContainer.style.top = '0';
+        promptContainer.style.left = '0';
+        promptContainer.style.right = '0';
+        promptContainer.style.bottom = '0';
+        promptContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        promptContainer.style.display = 'flex';
+        promptContainer.style.justifyContent = 'center';
+        promptContainer.style.alignItems = 'center';
+        promptContainer.style.zIndex = '9999';
+
+        // Create prompt box
+        const promptBox = document.createElement('div');
+        promptBox.style.backgroundColor = 'white';
+        promptBox.style.padding = '20px';
+        promptBox.style.borderRadius = '5px';
+        promptBox.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+        promptBox.style.textAlign = 'center';
+
+        // Create message paragraph
+        const messageParagraph = document.createElement('p');
+        messageParagraph.textContent = message;
+        promptBox.appendChild(messageParagraph);
+
+        // Create input field
+        const inputField = document.createElement('input');
+        inputField.type = 'text';
+        promptBox.appendChild(inputField);
+
+        // Create OK button
+        const okButton = document.createElement('button');
+        okButton.textContent = 'OK';
+        okButton.onclick = () => {
+            const userInput = inputField.value;
+            document.body.removeChild(promptContainer);
+            resolve(userInput); // Resolve the promise with user input
+        };
+        promptBox.appendChild(okButton);
+
+
+        // Append prompt box to container
+        promptContainer.appendChild(promptBox);
+
+        // Append container to body
+        document.body.appendChild(promptContainer);
+    });
+}
 if (localStorage.getItem("username2") !== null) {
-    username = localStorage.getItem("username")
+    username = localStorage.getItem("username2")
     if (usernameProfile !== null) {
         usernameProfile.innerHTML = username
     }
 } else {
     console.log("no username")
-    username = prompt("Enter your username")
+    username = await customPrompt("Enter your username")
     localStorage.setItem("username2", username)
-    usernameProfile.innerHTML = username
+    if (usernameProfile) {
+        usernameProfile.innerHTML = username
+    }
     console.log(username)
 }
 if (reset) {
