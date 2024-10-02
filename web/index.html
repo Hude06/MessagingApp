@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pulse - Encrypted Messaging</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+    <script type="module" src="./main.js"></script>
+</head>
+<body>
+    <header>
+        <h1 id = "usernameIS" class = "username">Hello, Do I know you?</h1>
+    </header>
+    <div class="container">
+        <main>
+            <section class="chat" id = "chat">
+                <div class="messages" id = "messages">
+                    <!-- Messages will be displayed here -->
+                </div>
+                <form id="messageForm">
+                    <input type="text" id="WhoMessaging" placeholder="Who Are you Messaging???" required>
+                    <input type="text" id="messageInput" placeholder="Type your message..." required>
+                    <button id = "send">Send</button>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <footer>
+        <button onclick="location.href='./profile.html'">Profile</button>
+        <button onclick="location.href='./index.html'" class="active">Chat</button>
+        <button onclick="location.href='./Log_In.html'">Log In</button>
+        <button id = "logout">Log Out</button>
+        <button onclick="location.href='#'">Settings</button>
+    </footer>
+
+</body>
+</html>
