@@ -157,9 +157,7 @@ function generateRandomString(length) {
 let globals = new Globls();
 
 
-console.log(globals)
 let session = await globals.supabase2.auth.getSession();
-
 if (session.data.session !== null) {
     console.log("Sesion is ",session.data.session.user.email)
     globals.user = session.data.session.user.email
@@ -239,6 +237,25 @@ async function signUp(email,password) {
         console.log('Inserted public key:', exportedPublicKey);
         return data, publicKey, privateKey
 }
+async function getDataFromTable(Table, column) {
+    const { data, error } = await globals.supabase2
+        .from(Table) // Replace with your table name
+        .select(column) // Replace with your column names
+
+    if (error) {
+        console.error('Error fetching messages:', error);
+        return;
+    }
+    return data
+}
+function lowercase(inputString) {
+    if (typeof inputString === 'string') {
+        return inputString.toLowerCase();
+    } else {
+        console.log("Input is not a string",typeof inputString,inputString)
+        throw new Error("Input is not a string");
+    }
+}
 async function signIn(email,password) {
     const { data, error } = await globals.supabase2.auth.signInWithPassword({
         email: email,
@@ -249,9 +266,17 @@ async function signIn(email,password) {
     } else {
         globals.user = email
         globals.USERNAMEDIV.innerHTML = globals.user
+        let tempEmail = await getDataFromTable("Users", "email")
+        for (let i = 0; i < tempEmail.length; i++) {
+            if (lowercase(tempEmail[i].email) === lowercase(email)) {
+                globals.MYPUBLICKEY = (await getDataFromTable("Users", "Public_Key",))[i]
+                globals.CURRENTUSERID = (await getDataFromTable("Users", "User_id",))[i]
+                console.log(globals.MYPUBLICKEY, globals.CURRENTUSERID)
+            }
+        }
         return data
-        
     }
+
 }
 async function submitMessage(Table, MessageEncrypted,Public_Key,sendingto) {
     const { error } = await globals.supabase2
