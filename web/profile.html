@@ -6,7 +6,9 @@
     <title>Pulse - Encrypted Messaging</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
+    <script src="https://unpkg.com/@capacitor/core"></script>
+    <script src="https://unpkg.com/@capacitor/preferences"></script>
+    
     <script type="module" src="./main.js"></script>
 </head>
 <body>
@@ -17,9 +19,8 @@
     <div class="container">
         <main>
             <div class = "topbar">
-                <h1 id = "username">UNDEFINDED</h1>
+                <h1 id = "UsersID"></h1>
             </div>
-            <button id = "reset">Reset Username</button>
         </main>
     </div>
 

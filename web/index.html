@@ -6,12 +6,16 @@
     <title>Pulse - Encrypted Messaging</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@capacitor/core"></script>
+    <script src="https://unpkg.com/@capacitor/preferences"></script>
+    
 
     <script type="module" src="./main.js"></script>
 </head>
 <body>
     <header>
         <h1 id = "usernameIS" class = "username">Hello, Do I know you?</h1>
+        <h1 id = "UsersPubKey"></h1>
     </header>
     <div class="container">
         <main>
@@ -20,7 +24,9 @@
                     <!-- Messages will be displayed here -->
                 </div>
                 <form id="messageForm">
-                    <input type="text" id="WhoMessaging" placeholder="Who Are you Messaging???" required>
+                    <select name="contacts" id="contacts">
+                        <option value="Contacts">Contacts</option>
+                      </select>
                     <input type="text" id="messageInput" placeholder="Type your message..." required>
                     <button id = "send">Send</button>
                 </form>
