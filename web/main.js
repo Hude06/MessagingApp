@@ -1,6 +1,5 @@
 const { Preferences } = window.Capacitor.Plugins;
 const { createClient } = supabase;
-
 class Globls {
     constructor() {
         this.supabase2 = createClient('https://dvlfunioxoupyyaxipnj.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bGZ1bmlveG91cHl5YXhpcG5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjczODE2MzIsImV4cCI6MjA0Mjk1NzYzMn0.Tyqzm6kKzVZqnBDYN69Pb3fcwkSRcA4zUb6QSO0I6gY'); // Replace with your actual anon key
@@ -8,7 +7,6 @@ class Globls {
         this.sidebar = document.getElementById("sidebar");
         this.user = null;
         this.LOGOUTDIV = document.getElementById("logout")
-        this.LOGINFORM = document.getElementById("login-submit")
 
         this.SIGNUPBUT = document.getElementById("SIGNUP")
 
@@ -22,6 +20,8 @@ class Globls {
         this.PUBKEYDIV = document.getElementById("UsersPubKey")
 
         this.CURRENTUSERID = generateRandomString(10)
+
+        this.CLEARBUTTON = document.getElementById("Clear")
 
     }
 }   
@@ -96,19 +96,14 @@ async function generateKeyPair() {
 
     return { publicKey, privateKey };
 }
-
 async function exportKey(key, format,pub) {
     try {
         if (pub) {
-                console.log(format,key)
                 const exportedKey = await window.crypto.subtle.exportKey("spki", key);
                 console.log("WORKED Pub")
-                console.log(exportedKey)
                 return exportedKey
         } else {
                 const exportedKey = await window.crypto.subtle.exportKey("pkcs8", key);
-                console.log("WORKED Priv")
-                console.log(exportedKey)
                 return exportedKey
         }
     } catch (error) {
@@ -144,7 +139,7 @@ function base64ToArrayBuffer(base64) {
 function generateRandomString(length) {
     if (length < 1) return '';
 
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+[]{}|;:,.<>?';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let randomString = '';
 
     for (let i = 0; i < length; i++) {
@@ -155,50 +150,81 @@ function generateRandomString(length) {
     return randomString;
 }
 let globals = new Globls();
-
-
 let session = await globals.supabase2.auth.getSession();
+console.log(getData("username"),getData("password"),getData("publicKey"),getData("privateKey"))
+if (globals.CLEARBUTTON) {
+    globals.CLEARBUTTON.addEventListener("click", async function() {
+        const { error } = await globals.supabase2.auth.signOut()
+        await Preferences.remove({ key: 'password' });
+        await Preferences.remove({ key: 'username' });
+        await Preferences.remove({ key: 'publicKey' });
+        await Preferences.remove({ key: 'privateKey' });
+        await Preferences.remove({ key: 'userID' });
+        console.log("Cleared")
+        console.log(error)
+    })
+}
 if (session.data.session !== null) {
     console.log("Sesion is ",session.data.session.user.email)
     globals.user = session.data.session.user.email
     if (globals.USERNAMEDIV) {
         globals.USERNAMEDIV.innerHTML = globals.user
     }
-}
-if (globals.LOGOUTDIV) {
-    globals.LOGOUTDIV.addEventListener("click", logOut)
-}
-if (globals.LOGINFORM) {
-    globals.LOGINFORM.addEventListener("click", async function(e) {
-        e.preventDefault()
-        let email = document.getElementById("email").value
-        let password = document.getElementById("password").value
-        alert(await signIn(email,password))
+} else {
+    let tempUser = await getData("username")
+    let tempPass = await getData("password")
+    if (tempUser && tempPass) {
+        console.log("Logging in")
+    }
 
-
-    })
 }
 if (globals.SIGNUPBUT) {
     globals.SIGNUPBUT.addEventListener("click", async function(e) {
         e.preventDefault()
-        let email = document.getElementById("email").value
-        let password = document.getElementById("password").value
-        await signUp(email,password)
-
-        location.href = "./index.html"
-        
-
+        let TempEmail = await getData("username")
+        let TempPass = await getData("password")
+        let [email, password] = await Promise.all([TempEmail, TempPass]);
+        if (email && password) {
+            alert("Already signed in")
+        } else {
+            let emailDiv = document.getElementById("email").value
+            let passwordDiv = document.getElementById("password").value
+            console.log(emailDiv,passwordDiv)
+            await saveData("username",emailDiv)
+            await saveData("password",passwordDiv)
+            await signUp(emailDiv,passwordDiv)
+        }
     })
 }
 if (session.data.session !== null) {
     globals.user = session.data.session.user.email;
 } else {
+    if (getData("username") && getData("password")) {
+        let TempEmail = await getData("username")
+        let TempPass = await getData("password")
+        let [email, password] = await Promise.all([TempEmail, TempPass]);
+        console.log(email,password)
+        if (email && password) {
+            await login(email,password)
+        } else {
+            console.log("Never loged in")
+        }
+    }
     console.log("No user logged in")
 }
-async function logOut() {
-    const { error } = await globals.supabase2.auth.signOut()
-    console.log(error)
-    location.reload()
+async function login(email,password) {
+    const { data, error } = await globals.supabase2.auth.signInWithPassword({
+        email: email,
+        password: password,
+    })
+    if (error) {
+        console.error('Error logging in:', error);
+        return;
+    }
+    globals.user = email;
+    if (globals.USERNAMEDIV) {
+        globals.USERNAMEDIV.innerHTML = globals.user
+    }
 }
 async function fetchMessage(Table, column) {
     const { data, error } = await globals.supabase2
@@ -217,25 +243,31 @@ async function signUp(email,password) {
     const exportedPrivateKey = await exportKey(privateKey, "spki",false);
     globals.MYPUBLICKEY = arrayBufferToBase64(exportedPublicKey);
     globals.MYPRIVATEKEY = arrayBufferToBase64(exportedPrivateKey);
+    saveData("privateKey",globals.MYPRIVATEKEY)
+    saveData("publicKey",globals.MYPUBLICKEY)
+    saveData("userID",globals.CURRENTUSERID)
+    console.log("Saving Data",globals.MYPUBLICKEY,globals.MYPRIVATEKEY,globals.CURRENTUSERID)
     const { data, error } = await globals.supabase2.auth.signUp({
         email: email,
         password: password,
     })
+        console.log("What is this",error)
         if (error) {
             console.error('Error signing up:', error);
             alert(error)
             return;
-        }
-        const { error2 } = await globals.supabase2
+        } else {
+            console.log("Signed up","RUNNING")
+            const { error2 } = await globals.supabase2
 
-        .from("Users") // Replace with your table name
-        .insert({
-          User_id: globals.CURRENTUSERID,
-          Public_Key: globals.MYPUBLICKEY, // Replace with your column names and values
-          email: email
-        });
-        console.log('Inserted public key:', exportedPublicKey);
-        return data, publicKey, privateKey
+            .from("Users") 
+            .insert({
+              User_id: globals.CURRENTUSERID,
+              Public_Key: globals.MYPUBLICKEY,
+              email: email
+            });
+            return data, publicKey, privateKey
+        }
 }
 async function getDataFromTable(Table, column) {
     const { data, error } = await globals.supabase2
@@ -255,28 +287,6 @@ function lowercase(inputString) {
         console.log("Input is not a string",typeof inputString,inputString)
         throw new Error("Input is not a string");
     }
-}
-async function signIn(email,password) {
-    const { data, error } = await globals.supabase2.auth.signInWithPassword({
-        email: email,
-        password: password,
-    })
-    if (error) {
-        return error
-    } else {
-        globals.user = email
-        globals.USERNAMEDIV.innerHTML = globals.user
-        let tempEmail = await getDataFromTable("Users", "email")
-        for (let i = 0; i < tempEmail.length; i++) {
-            if (lowercase(tempEmail[i].email) === lowercase(email)) {
-                globals.MYPUBLICKEY = (await getDataFromTable("Users", "Public_Key",))[i]
-                globals.CURRENTUSERID = (await getDataFromTable("Users", "User_id",))[i]
-                console.log(globals.MYPUBLICKEY, globals.CURRENTUSERID)
-            }
-        }
-        return data
-    }
-
 }
 async function submitMessage(Table, MessageEncrypted,Public_Key,sendingto) {
     const { error } = await globals.supabase2
